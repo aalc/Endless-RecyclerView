@@ -41,7 +41,11 @@ public class TextAdapter extends RecyclerView.Adapter<TextHolder> {
 
 
     public Integer getLastId() {
-        return data == null ? 0 : data.get(data.size() - 1);
+        return data == null || data.isEmpty() ? 0 : data.get(data.size() - 1);
+    }
+
+    public void clearData() {
+        data.clear();
     }
 }
 

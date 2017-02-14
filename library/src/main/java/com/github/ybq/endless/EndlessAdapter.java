@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
-@SuppressWarnings("unchecked")
+//@SuppressWarnings("unchecked")
 public abstract class EndlessAdapter<LVH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter {
     private final int TYPE_LOAD_MORE = 101;
     private boolean loading;

@@ -1,6 +1,7 @@
 package com.github.ybq.endless_recyclerview;
 
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,22 +21,37 @@ public class MainActivity extends AppCompatActivity {
     private TextAdapter textAdapter;
     private AsyncTask asyncTask;
 
+    SwipeRefreshLayout pullToRefreshLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        pullToRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_profile);
+
+        pullToRefreshLayout.setColorSchemeResources(R.color.colorAccent);
+        pullToRefreshLayout.canChildScrollUp();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
 
         View loadingView = View.inflate(this, R.layout.layout_loading, null);
         loadingView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        endless = Endless.applyTo(recyclerView,
-                loadingView
-        );
+
+        endless = new Endless.Builder(recyclerView,loadingView)
+                .pullToRefreshLayout(pullToRefreshLayout)
+                .build();
+
         endless.setAdapter(textAdapter = new TextAdapter());
         endless.setLoadMoreListener(new Endless.LoadMoreListener() {
+            @Override
+            public void onRefresh() {
+                textAdapter.clearData();
+                loadData(0);
+            }
+
             @Override
             public void onLoadMore(int page) {
                 loadData(page);
@@ -71,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 data = integers;
                 if (page == 0) {
                     textAdapter.setData(data);
+                    endless.refreshComplete();
                 } else {
                     textAdapter.addData(data);
                     endless.loadMoreComplete();

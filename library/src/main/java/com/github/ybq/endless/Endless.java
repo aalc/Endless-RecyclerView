@@ -1,5 +1,6 @@
 package com.github.ybq.endless;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -9,14 +10,16 @@ import java.util.ArrayList;
 /**
  */
 public class Endless {
-
     private final EndlessScrollListener listener;
+
     private boolean loadMoreAvailable = true;
     private LoadMoreListener loadMoreListener;
     private RecyclerView recyclerView;
     private EndlessAdapter mAdapter;
     private static ArrayList<WeakReference<Endless>> mLoadMoreEntries;
     private View loadMoreView;
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     public static void remove(RecyclerView recyclerView) {
         if (mLoadMoreEntries != null) {
@@ -31,7 +34,37 @@ public class Endless {
         }
     }
 
-    public static Endless applyTo(RecyclerView recyclerView, View loadMoreView) {
+
+
+    public static class Builder {
+        RecyclerView recyclerView;
+        View loadMoreView;
+        SwipeRefreshLayout swipeRefreshLayout;
+        View emptyView;
+
+        public Builder(RecyclerView recyclerView, View loadMoreView) {
+            this.recyclerView = recyclerView;
+            this.loadMoreView = loadMoreView;
+        }
+
+        public Builder pullToRefreshLayout(SwipeRefreshLayout swipeRefreshLayout) {
+            this.swipeRefreshLayout = swipeRefreshLayout;
+            return this;
+        }
+
+
+
+        public Endless build() {
+            return applyTo(recyclerView, loadMoreView, swipeRefreshLayout);
+        }
+    }
+
+
+
+    private static Endless applyTo(RecyclerView recyclerView,
+                                   View loadMoreView,
+                                   SwipeRefreshLayout swipeRefreshLayout
+    ) {
         Endless endless;
         if (mLoadMoreEntries == null) {
             mLoadMoreEntries = new ArrayList<>();
@@ -47,7 +80,7 @@ public class Endless {
                 }
             }
         }
-        endless = new Endless(recyclerView, loadMoreView);
+        endless = new Endless(recyclerView, loadMoreView, swipeRefreshLayout);
         mLoadMoreEntries.add(new WeakReference<>(endless));
         RecyclerView.Adapter adapter = recyclerView.getAdapter();
         if (adapter != null) {
@@ -60,10 +93,16 @@ public class Endless {
         return recyclerView;
     }
 
-    private Endless(final RecyclerView recyclerView, View loadMoreView) {
+    private Endless(final RecyclerView recyclerView,
+                    View loadMoreView,
+                    SwipeRefreshLayout swipeRefreshLayout
+    ) {
+
         this.recyclerView = recyclerView;
         this.loadMoreView = loadMoreView;
-        RecyclerView.Adapter adapter = recyclerView.getAdapter();
+        this.swipeRefreshLayout = swipeRefreshLayout;
+        final RecyclerView.Adapter adapter = recyclerView.getAdapter();
+
         if (!(adapter instanceof EndlessAdapter)) {
             setAdapter(adapter);
         }
@@ -80,6 +119,14 @@ public class Endless {
                     }
                 });
 
+            }
+        });
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                listener.clearPage();
+                loadMoreListener.onRefresh();
             }
         });
 
@@ -115,7 +162,15 @@ public class Endless {
         mAdapter = (EndlessAdapter) recyclerView.getAdapter();
     }
 
+    public void refreshComplete() {
+        mAdapter.setLoading(false);
+        listener.setLoading(false);
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
     public interface LoadMoreListener {
+        void onRefresh();
+
         void onLoadMore(int page);
     }
 }

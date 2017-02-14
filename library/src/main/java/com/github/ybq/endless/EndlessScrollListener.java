@@ -50,4 +50,8 @@ public abstract class EndlessScrollListener extends RecyclerView.OnScrollListene
     }
 
     public abstract void onLoadMore(int currentPage);
+
+    public void clearPage() {
+        currentPage = 1;
+    }
 }
