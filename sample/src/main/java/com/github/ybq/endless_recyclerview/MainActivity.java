@@ -40,23 +40,25 @@ public class MainActivity extends AppCompatActivity {
         View loadingView = View.inflate(this, R.layout.layout_loading, null);
         loadingView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        endless = new Endless.Builder(recyclerView,loadingView)
+        endless = new Endless.Builder(recyclerView, loadingView)
                 .pullToRefreshLayout(pullToRefreshLayout)
                 .build();
 
-        endless.setAdapter(textAdapter = new TextAdapter());
-        endless.setLoadMoreListener(new Endless.LoadMoreListener() {
-            @Override
-            public void onRefresh() {
-                textAdapter.clearData();
-                loadData(0);
-            }
+        endless.setAdapter(
+                textAdapter = new TextAdapter(),
+                new Endless.LoadMoreListener() {
+                    @Override
+                    public void onRefresh() {
+                        textAdapter.clearData();
+                        loadData(0);
+                    }
 
-            @Override
-            public void onLoadMore(int page) {
-                loadData(page);
-            }
-        });
+                    @Override
+                    public void onLoadMore(int page) {
+                        loadData(page);
+                    }
+                });
+
         loadData(0);
     }
 

@@ -35,12 +35,10 @@ public class Endless {
     }
 
 
-
     public static class Builder {
         RecyclerView recyclerView;
         View loadMoreView;
         SwipeRefreshLayout swipeRefreshLayout;
-        View emptyView;
 
         public Builder(RecyclerView recyclerView, View loadMoreView) {
             this.recyclerView = recyclerView;
@@ -53,12 +51,10 @@ public class Endless {
         }
 
 
-
         public Endless build() {
             return applyTo(recyclerView, loadMoreView, swipeRefreshLayout);
         }
     }
-
 
 
     private static Endless applyTo(RecyclerView recyclerView,
@@ -150,6 +146,11 @@ public class Endless {
         this.loadMoreAvailable = loadMoreAvailable;
     }
 
+
+    public void setAdapter(RecyclerView.Adapter adapter, LoadMoreListener loadMoreListener) {
+        setAdapter(adapter);
+        setLoadMoreListener(loadMoreListener);
+    }
 
     public void setAdapter(RecyclerView.Adapter adapter) {
         if (adapter == null) {
