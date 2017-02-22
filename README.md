@@ -1,4 +1,4 @@
-# Endless-RecyclerView
+﻿# Endless-RecyclerView
 >Endless support for RecyclerView
  
 ## Gradle Dependency
@@ -28,16 +28,34 @@ dependencies {
 ```java
 RecyclerView recyclerView = ...;
 View loadingView = ...;
-Endless endless = Endless.applyTo(recyclerView,
-                loadingView
-        );
-endless.setLoadMoreListener(new Endless.LoadMoreListener() {
-            @Override
-            public void onLoadMore(int page) {
-                .....;
-            }
-        });
+SwipeRefreshLayout pullToRefreshLayout = ...;
+
+endless = new Endless.Builder(recyclerView, loadingView)
+                .pullToRefreshLayout(pullToRefreshLayout)
+                .build();
+
+endless.setAdapter(
+                textAdapter = new TextAdapter(),
+                new Endless.LoadMoreListener() {
+                    @Override
+                    public void onRefresh() {
+                        refresh();
+                    }
+
+                    @Override
+                    public void onLoadMore(int page) {
+                        loadData(page);
+                    }
+                });
+
+// call this when refresh data is complete
+endless.refreshComplete();
+
+// call this when load more is complete 
+endless.loadMoreComplete();
+
 ```
+
 
 ## Acknowledgements
 - [https://gist.github.com/mipreamble/b6d4b3d65b0b4775a22e](https://gist.github.com/mipreamble/b6d4b3d65b0b4775a22e).
